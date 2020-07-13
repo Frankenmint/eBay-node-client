@@ -31,9 +31,14 @@ export DEBUG=eBay:*
 ```
 
 ## Usage
-```bash
+```
 export EBAY_CLIENT_ID=KEY
 export EBAY_CLIENT_SECRET=SECRET
+```
+
+## Additional Parameters based on different API Call
+```
+export EBAY_DEV_ID=DEV_ID
 ```
 
 ## To Enable Sandbox Purpose
@@ -52,6 +57,26 @@ import * as eBay from 'ebay-node-client';
 
 const eBay = new eBay();
 eBay.setApiKey('YOUR_KEY', 'YOUR_SECRET');
+```
+
+## Set Application Access Token
+```js
+    eBay.setToken(token.access_token);
+```
+
+## Set User Token
+```js
+    eBay.setUserToken(userToken);
+```
+
+## Set Content Language (Default is en-US)
+```js
+    eBay.setContentLanguage('en-GB');
+```
+
+## Set MarketplaceId
+```js
+    eBay.setMarketplaceId('EBAY_US');
 ```
 
 ## Pull Request
@@ -122,6 +147,24 @@ Originally by [Bhushankumar L](mailto:bhushankumar.lilapara@gmail.com).
     };
     try {
         var response = await eBay.browse.search(data);
+        console.log('response', response);
+    } catch (error) {
+        console.log('error ', error);
+        return;
+    }    
+```
+
+#### Search By Image
+```
+    var userToken = utils.USER_TOKEN;
+    eBay.setUserToken(userToken);
+    var base64Content = base64_encode('sample-image.jpg');
+    // console.log('base64Content ', base64Content);
+    var data = {
+        image: base64Content
+    };
+    try {
+        var response = await eBay.browse.searchByImage(data);
         console.log('response', response);
     } catch (error) {
         console.log('error ', error);
@@ -425,6 +468,20 @@ Originally by [Bhushankumar L](mailto:bhushankumar.lilapara@gmail.com).
     }    
 ```
 
+### Finding
+#### Find Items By Product
+```
+    try {
+        var content = fse.readFileSync('./sample.xml', 'UTF-8');
+
+        var response = await eBay.finding.findItemsByProduct({content: content});
+        console.log('response', response);
+    } catch (error) {
+        console.log('error ', error);
+        return;
+    }    
+```
+
 ### Sell
 ### Account
 #### Create Or Replace Sales Tax
@@ -454,6 +511,23 @@ Originally by [Bhushankumar L](mailto:bhushankumar.lilapara@gmail.com).
     var jurisdictionId = 'IN';
     try {
         var response = await eBay.account.deleteSalesTax(countryCode, jurisdictionId);
+        console.log('response', response);
+    } catch (error) {
+        console.log('error ', error);
+        return;
+    }    
+```
+
+### Fulfillment Policy
+#### Get Fulfillment Policies
+```
+    var userToken = utils.USER_TOKEN;
+    eBay.setUserToken(userToken);
+    var data = {
+        marketplace_id: 'EBAY_US'
+    };
+    try {
+        var response = await eBay.fulfillmentPolicy.getFulfillmentPolicies(data);
         console.log('response', response);
     } catch (error) {
         console.log('error ', error);
@@ -492,7 +566,98 @@ Originally by [Bhushankumar L](mailto:bhushankumar.lilapara@gmail.com).
     }    
 ```
 
+### Payment Policy
+#### Get Payment Policies
+```
+    var userToken = utils.USER_TOKEN;
+    eBay.setUserToken(userToken);
+    var data = {
+        marketplace_id: 'EBAY_US'
+    };
+    try {
+        var response = await eBay.paymentPolicy.getPaymentPolicies(data);
+        console.log('response', response);
+    } catch (error) {
+        console.log('error ', error);
+        return;
+    }    
+```
+
+### Return Policy
+#### Get Return Policies
+```
+    var userToken = utils.USER_TOKEN;
+    eBay.setUserToken(userToken);
+    var data = {
+        marketplace_id: 'EBAY_US'
+    };
+    try {
+        var response = await eBay.returnPolicy.getReturnPolicies(data);
+        console.log('response', response);
+    } catch (error) {
+        console.log('error ', error);
+        return;
+    }    
+```
+
 ### Inventory
+#### Bulk Create Or Replace Inventory Item
+```
+    var userToken = utils.USER_TOKEN;
+    eBay.setUserToken(userToken);
+    var data = {
+        'requests': [
+            {
+                'sku': '13465446'
+            },
+            {
+                'sku': '132165496'
+            }
+        ]
+    };
+    try {
+        var response = await eBay.inventory.bulkCreateOrReplaceInventoryItem(data);
+        console.log('response ', response);
+    } catch (error) {
+        console.log('error ', error);
+        return;
+    }    
+```
+
+#### Bulk Update Price Quantity
+```
+    var userToken = utils.USER_TOKEN;
+    eBay.setUserToken(userToken);
+    var data = { /* BulkPriceQuantity */
+        'requests': [
+            { /* PriceQuantity */
+                'offers': [
+                    { /* OfferPriceQuantity */
+                        'availableQuantity': 'integer',
+                        'offerId': 'string',
+                        'price': { /* Amount */
+                            'currency': 'string',
+                            'value': 'string'
+                        }
+                    }
+                ],
+                'shipToLocationAvailability': {
+                    /* ShipToLocationAvailability */
+                    'quantity': 'integer'
+                },
+                'sku': 'string'
+            }
+        ]
+    }
+    try {
+        var response = await eBay.inventory.bulkUpdatePriceQuantity(sku, data);
+        console.log('response', response);
+    } catch (error) {
+        console.log('error ', error);
+        return;
+    }    
+```
+
 #### Create Or Replace Inventory Item
 ```
     var userToken = utils.USER_TOKEN;
@@ -576,7 +741,7 @@ Originally by [Bhushankumar L](mailto:bhushankumar.lilapara@gmail.com).
 ```
     var userToken = utils.USER_TOKEN;
     eBay.setUserToken(userToken);
-    var sku = '32984729384729';
+    var sku = '32984729384730';
     try {
         var response = await eBay.inventory.getInventoryItem(sku);
         console.log('response ', response);
@@ -930,6 +1095,76 @@ Originally by [Bhushankumar L](mailto:bhushankumar.lilapara@gmail.com).
     var offerId = '6360335010';
     try {
         var response = await eBay.offer.withdrawOffer(offerId);
+        console.log('response', response);
+    } catch (error) {
+        console.log('error ', error);
+        return;
+    }    
+```
+
+### Shopping
+#### Find Products
+```
+    try {
+        var content = fse.readFileSync('./sample.xml', 'UTF-8');
+        // console.log('content', content);
+
+        var response = await eBay.shopping.findProducts({content: content});
+        console.log('response', response);
+    } catch (error) {
+        console.log('error ', error);
+        return;
+    }    
+```
+
+### Trading
+#### Add Item
+```
+    try {
+        var content = fse.readFileSync('./sample.xml', 'UTF-8');
+        // console.log('content', content);
+
+        var response = await eBay.trading.addItem({content: content});
+        console.log('response', response);
+    } catch (error) {
+        console.log('error ', error);
+        return;
+    }    
+```
+
+#### Get Item
+```
+    try {
+        var content = fse.readFileSync('./sample.txt', 'UTF-8');
+        // console.log('content', content);
+        var response = await eBay.trading.addItem({content: content});
+        console.log('response', response);
+    } catch (error) {
+        console.log('error ', error);
+        return;
+    }    
+```
+
+#### Get Session Id
+```
+    var devId = utils.DEV_ID;
+    var ruName = utils.RU_NAME;
+
+    eBay.setDevName(devId);
+
+    const obj = {
+        '@': {
+            'xmlns': 'urn:ebay:apis:eBLBaseComponents'
+        },
+        'ErrorLanguage': 'en_US',
+        'WarningLevel': 'High',
+        'RuName': ruName
+    };
+
+    var content = js2xmlparser.parse('GetSessionIDRequest', obj, {declaration: {encoding: 'UTF-8'}});
+
+    try {
+        var response = await eBay.trading.getSessionID({content: content});
         console.log('response', response);
     } catch (error) {
         console.log('error ', error);
